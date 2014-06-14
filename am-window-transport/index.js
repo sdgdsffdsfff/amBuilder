@@ -1,52 +1,71 @@
 'use strict';
+var through = require('through2'),
+	uglify = require('uglify-js'),
+	merge = require('deepmerge'),
+	uglifyError = require('./lib/error.js');
 
-var gutil = require('gulp-util');
-var through = require('through2');
-var path = require('path');
+module.exports = function(opt) {
 
-var PLUGIN_NAME = 'window-transport';
+	function minify(file, encoding, callback) {
+		/*jshint validthis:true */
 
-module.exports = function (options) {
-	if (!options) {
-		options = {};
-	}
-
-	if (options.force && typeof options.force !== 'boolean') {
-		options.force = false;
-	}
-
-	function del(file, encoding, cb) {
-		//jshint validthis:true
-
-		var cwd = file.cwd || process.cwd();
-		// For safety always resolve paths
-		var filepath = path.resolve(cwd, file.path);
-		var relativeFromCwd = path.relative(cwd, filepath);
-
-		if (relativeFromCwd === '') {
-			this.emit('error', new gutil.PluginError(PLUGIN_NAME, 'Cannot delete the current working directory: ' + filepath));
+		if (file.isNull()) {
 			this.push(file);
-			return cb();
+			return callback();
 		}
 
-		if (!options.force && relativeFromCwd.substr(0, 2) === '..') {
-			this.emit('error', new gutil.PluginError(PLUGIN_NAME, 'Cannot delete files or folders outside the current working directory: ' + filepath));
-			this.push(file);
-			return cb();
+		if (file.isStream()) {
+			return callback(uglifyError('Streaming not supported', {
+				fileName: file.path,
+				showStack: false
+			}));
 		}
 
-		if (options.verbose) {
-			gutil.log('gulp-rimraf: removed ' + filepath);
+		var options = merge(opt || {}, {
+			fromString: true,
+			output: {}
+		});
+
+		var mangled,
+			originalSourceMap;
+
+		if (file.sourceMap) {
+			options.outSourceMap = file.relative;
+			options.inSourceMap = file.sourceMap;
+			originalSourceMap = file.sourceMap;
 		}
 
-		rimraf(filepath, function (err) {
-			if (err) {
-				this.emit('error', new gutil.PluginError(PLUGIN_NAME, err));
-			}
-			this.push(file);
-			cb();
-		}.bind(this));
+		if (options.preserveComments === 'all') {
+			options.output.comments = true;
+		} else if (options.preserveComments === 'some') {
+// preserve comments with directives or that start with a bang (!)
+			options.output.comments = /^!|@preserve|@license|@cc_on/i;
+		} else if (typeof options.preserveComments === 'function') {
+			options.output.comments = options.preserveComments;
+		}
+
+		try {
+			mangled = uglify.minify(String(file.contents), options);
+			file.contents = new Buffer(mangled.code);
+		} catch (e) {
+			return callback(uglifyError(e.message, {
+				fileName: file.path,
+				lineNumber: e.line,
+				stack: e.stack,
+				showStack: false
+			}));
+		}
+
+		if (file.sourceMap) {
+			file.sourceMap = JSON.parse(mangled.map);
+			file.sourceMap.sourcesContent = originalSourceMap.sourcesContent;
+			file.sourceMap.sources = originalSourceMap.sources;
+		}
+
+		this.push(file);
+
+		callback();
 	}
 
-	return through.obj(del);
+	return through.obj(minify);
 };

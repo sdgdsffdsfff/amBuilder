@@ -1,6 +1,7 @@
 'use strict';
 var through = require('through2'),
-	uglifyError = require('./lib/error.js');
+	uglifyError = require('./lib/error.js'),
+	merge = require('deepmerge');
 
 module.exports = function(opt) {
 	function transport(file,encoding,callback){

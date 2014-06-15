@@ -1,10 +1,31 @@
 'use strict';
 var through = require('through2'),
-	uglify = require('uglify-js'),
-	merge = require('deepmerge'),
 	uglifyError = require('./lib/error.js');
 
 module.exports = function(opt) {
+	function transport(file,encoding,callback){
+		if(file.isNull()){
+			this.push(file);
+			return callback();
+		}
+
+		if (file.isStream()) {
+			return callback(uglifyError('Streaming not supported', {
+				fileName: file.path,
+				showStack: false
+			}));
+		}
+
+		var options = merge(opt || {}, {
+			wrapper: "window"
+		});
+
+		console.log(file.contents);
+
+		this.push(file);
+
+		callback();
+	}
 
 	function minify(file, encoding, callback) {
 		/*jshint validthis:true */
@@ -67,5 +88,5 @@ module.exports = function(opt) {
 		callback();
 	}
 
-	return through.obj(minify);
+	return through.obj(transport);
 };

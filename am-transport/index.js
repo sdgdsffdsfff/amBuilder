@@ -20,8 +20,8 @@ var AMTransport = module.exports = function AMTransport(options) {
 	this.warnings = this.context.warnings;
 
 	//默认windows分装
-	if (undefined === options.wrapper) {
-		options.wrapper = "windows";
+	if (undefined === options.loader) {
+		options.loader = "windows";
 	}
 
 	//默认AJ模块的分装

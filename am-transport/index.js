@@ -1,6 +1,5 @@
 'use strict';
-var uglifyError = require('./lib/error.js'),
-	uglify = require('uglify-js');
+var uglify = require('uglify-js');
 
 var AMTransport = module.exports = function AMTransport(options) {
 	options = options || {};

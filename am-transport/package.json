@@ -1,7 +1,9 @@
 {
 	"name": "am-transport",
+	"family": "AJ",
+	"loader": "windows",
 	"description": "module wrapper with all kinds of module package",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"homepage": "",
 	"repository": "",
 	"author": "semious",
@@ -10,7 +12,8 @@
 		"transport"
 	],
 	"dependencies": {
-		"uglify-js": "~2.4.6"
+		"uglify-js": "~2.4.6",
+		"commander": "2.2.x"
 	},
 	"devDependencies": {
 		"jshint": "^2.5.0"

@@ -1,0 +1,115 @@
+#!/usr/bin/env node
+
+var util = require('util');
+var fs = require('fs');
+var path = require('path');
+var AMTransport = require('../index');
+
+var commands = require('commander');
+
+var packageConfig = fs.readFileSync(path.join(path.dirname(fs.realpathSync(process.argv[1])), '../package.json'));
+var buildVersion = JSON.parse(packageConfig).version;
+var familyName = JSON.parse(packageConfig).family;
+var loader = JSON.parse(packageConfig).loader;
+
+var isWindows = process.platform == 'win32';
+
+// Specify commander options to parse command line params correctly
+commands
+  .version(buildVersion, '-v, --version')
+  .usage('[options] source-file')
+  .option('-d, --debug ', 'open debug mode')
+  .option('-f, --family [family-name]', 'family name AJ AW AB, AMUI,which one? AJ default')
+  .option('-o, --output [output-file]', 'Use [output-file] as output instead of STDOUT')
+  .option('-u, --uglify', 'use uglifyjs minify js')
+  .option('-w, --loader', 'module loader windows default')
+
+commands.on('--help', function() {
+  util.puts('  Examples:\n');
+  util.puts('    %> amtrans one.js');
+  util.puts('    %> amtrans -u one-min.js one.js');
+  if (isWindows) {
+//    util.puts('    %> type one.js two.js three.js | amtrans -o merged-and-minified.js');
+  } else {
+//    util.puts('    %> cat one.js two.js three.js | amtrans -o merged-and-minified.js');
+  }
+  util.puts('');
+  process.exit();
+});
+
+commands.parse(process.argv);
+
+var options = {
+  sources: null,
+  target: null
+};
+var cleanOptions = {};
+var fromStdin = !process.env.__DIRECT__ && !process.stdin.isTTY;
+
+// If no sensible data passed in just print help and exit
+if (!fromStdin && commands.args.length === 0) {
+  commands.outputHelp();
+  return 0;
+}
+
+// Now coerce commands into AMTransport configuration...
+cleanOptions.family = options.family = commands.family || familyName
+cleanOptions.loader = options.loader = commands.loader || loader
+
+if (commands.output)
+  cleanOptions.target = options.target = commands.output;
+if (commands.uglify)
+    cleanOptions.uglify = options.uglify = !!commands.uglify
+if (commands.debug)
+    cleanOptions.debug = options.debug = !!commands.debug
+
+// ... and do the magic!
+if (commands.args.length > 0) {
+  var data = fs.readFileSync(commands.args[0])
+  transport(data);
+} else {
+  var stdin = process.openStdin();
+  stdin.setEncoding('utf-8');
+  var data = '';
+  stdin.on('data', function(chunk) {
+    data += chunk;
+  });
+  stdin.on('end', function() {
+    transport(data);
+  });
+}
+
+function transport(data) {
+  new AMTransport(cleanOptions).transport(data, function(errors, transported) {
+    if (cleanOptions.debug) {
+      console.error('Original: %d bytes', this.stats.originalSize);
+      console.error('Minified: %d bytes', this.stats.minifiedSize);
+      console.error('Efficiency: %d%', ~~(this.stats.efficiency * 10000) / 100.0);
+      console.error('Time spent: %dms', this.stats.timeSpent);
+    }
+
+    outputFeedback(this.errors, true);
+    outputFeedback(this.warnings);
+
+    if (this.errors.length > 0){
+      process.exit(1);
+    }
+
+    output(transported);
+  });
+}
+
+function output(transported) {
+  if (options.target)
+    fs.writeFileSync(options.target, transported, 'utf8');
+  else
+    process.stdout.write(transported + '\n');
+}
+
+function outputFeedback(messages, isError) {
+  var prefix = isError ? '\x1B[31mERROR\x1B[39m:' : 'WARNING:';
+
+  messages.forEach(function(message) {
+    console.error('%s %s', prefix, message);
+  });
+}

@@ -52,13 +52,11 @@ AMTransport.prototype.transport = function (data, callback) {
 		this.stats.originalSize = data.length;
 	}
 
-	switch (options.wrapper) {
+	switch (options.loader) {
 		case "windows":
 			data = wrapperByWindows(data, options);
 			break;
 	}
-
-//	console.log(data);
 
 	if (options.uglify) {
 		data = uglify.minify(data, {fromString: true}).code;

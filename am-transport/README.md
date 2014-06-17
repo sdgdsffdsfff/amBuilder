@@ -53,7 +53,7 @@ var source = 'alert("hellworld");module.exports=helloworld';
 var transportjs = new AMTransport().transport(source);
 ```
 
-CleanCSS constructor accepts a hash as a parameter, i.e.,
+AMTransport constructor accepts a hash as a parameter, i.e.,
 `new AMTransport(options).transport(source)` with the following options available:
 
 * `loader` - module loader (default : windows)

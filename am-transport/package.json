@@ -3,7 +3,7 @@
 	"family": "AJ",
 	"loader": "windows",
 	"description": "module wrapper with all kinds of module package",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"homepage": "",
 	"repository": "",
 	"author": "semious",

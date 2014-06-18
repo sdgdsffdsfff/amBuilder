@@ -33,6 +33,11 @@ var AMTransport = module.exports = function AMTransport(options) {
 		options.uglify = false;
 	}
 
+	//standalone模式
+	if (undefined === options.standalone) {
+		options.standalone = false;
+	}
+
 	this.options = options;
 
 };
@@ -62,8 +67,6 @@ AMTransport.prototype.transport = function (data, callback) {
 		data = uglify.minify(data, {fromString: true}).code;
 	}
 
-//	console.log(data);
-
 	if (options.debug) {
 		var elapsed = process.hrtime(this.startedAt);
 		stats.timeSpent = ~~(elapsed[0] * 1e3 + elapsed[1] / 1e6);
@@ -77,17 +80,18 @@ AMTransport.prototype.transport = function (data, callback) {
 };
 
 function wrapperByWindows(data, options) {
-	var moduleWrapper = "(function(){\r\n$$modSrc\r\n})();";
+	var moduleWrapper = "window." + options.family + " = window." + options.family + "||{};\r\n(function(){\r\n$$modSrc\r\n})();";
 
-	//remove all escaped line breaks
-//	data = data.replace(/(\r\n|\n)/gm, '');
+	if (data.indexOf("module.exports") >= 0) {
+		if (!options.standalone) {
+			var modNameStr = data.match(/^module.exports\s*=\s*(\w+);?$/igm);
+			modNameStr = modNameStr[0].split("=")[1].replace(/(^\s*)|(\s*$)/g, "").replace(";", "");
+			data = data.replace("module.exports", "window." + options.family + "." + modNameStr);
+		} else {
+			data = data.replace("module.exports", "window." + options.family);
+		}
+	}
 
-	var modNameStr = data.match(/^module.exports\s*=\s*(\w+);?$/igm);
-
-	modNameStr = modNameStr[0].split("=")[1].replace(/(^\s*)|(\s*$)/g, "").replace(";", "");
-//	console.log(modNameStr);
-
-	data = data.replace("module.exports", "window." + options.family + "." + modNameStr);
 	data = moduleWrapper.replace("$$modSrc", data);
 	return data;
 }

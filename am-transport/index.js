@@ -1,6 +1,7 @@
 'use strict';
 var uglify = require('uglify-js');
 
+
 var AMTransport = module.exports = function AMTransport(options) {
 	options = options || {};
 
@@ -61,6 +62,15 @@ AMTransport.prototype.transport = function (data, callback) {
 		case "windows":
 			data = wrapperByWindows(data, options);
 			break;
+		case "code":
+			data = wrapperByCode(data, options);
+			break;
+		case "cmd":
+			break;
+		case "amd":
+			break;
+		case "kmd":
+			break;
 	}
 
 	if (options.uglify) {
@@ -79,6 +89,12 @@ AMTransport.prototype.transport = function (data, callback) {
 		data;
 };
 
+/**
+ * 采用windows的封装方式
+ * @param {string} data 源代码
+ * @param {object} options 选项
+ * @returns {string} 封装后的代码
+ */
 function wrapperByWindows(data, options) {
 	var moduleWrapper = "window." + options.family + " = window." + options.family + "||{};\r\n(function(){\r\n$$modSrc\r\n})();";
 
@@ -90,6 +106,33 @@ function wrapperByWindows(data, options) {
 		} else {
 			data = data.replace("module.exports", "window." + options.family);
 		}
+	}
+
+	data = moduleWrapper.replace("$$modSrc", data);
+	return data;
+}
+
+/**
+ * 封装成代码片段
+ * @param {string} data
+ * @param {object} options
+ * @returns {string}
+ */
+function wrapperByCode(data, options) {
+	var moduleWrapper = "";
+
+	if (data.indexOf("module.exports") >= 0) {
+		if (!options.standalone) {
+			var modNameStr = data.match(/^\s*?module\.exports\s*?=\s*(\w+);?$/igm);
+			modNameStr = modNameStr[0].split("=")[1].replace(/(^\s*)|(\s*$)/g, "").replace(";", "");
+			moduleWrapper = "var " + options.family + "_" + modNameStr + " = (function(){\r\n$$modSrc\r\n})();";
+			data = data.replace(/module\.exports\s*?=/ig, "return ");
+		} else {
+			moduleWrapper = "var " + options.family + " = (function(){\r\n$$modSrc\r\n})();";
+			data = data.replace("module.exports", "window." + options.family);
+		}
+	} else {//如果没有exports，则作为匿名函数处理
+		moduleWrapper = "(function(){\r\n$$modSrc\r\n})();";
 	}
 
 	data = moduleWrapper.replace("$$modSrc", data);

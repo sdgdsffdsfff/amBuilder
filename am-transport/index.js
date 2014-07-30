@@ -66,8 +66,10 @@ AMTransport.prototype.transport = function (data, callback) {
 			data = wrapperByCode(data, options);
 			break;
 		case "cmd":
+			data = wrapperByCMD(data, options);
 			break;
 		case "amd":
+			data = wrapperByAMD(data, options);
 			break;
 		case "kmd":
 			break;
@@ -138,3 +140,28 @@ function wrapperByCode(data, options) {
 	data = moduleWrapper.replace("$$modSrc", data);
 	return data;
 }
+
+/**
+ * 封装成cmd规范
+ * @param {string} data
+ * @param {object} options
+ * @returns {string}
+ */
+function wrapperByCMD(data, options) {
+	var moduleWrapper = "define(function(require, exports, module) {$$modSrc})";
+	data = moduleWrapper.replace("$$modSrc", data);
+	return data;
+}
+
+/**
+ * 封装成amd规范
+ * @param {string} data
+ * @param {object} options
+ * @returns {string}
+ */
+function wrapperByAMD(data, options) {
+	var moduleWrapper = "define(function() {$$modSrc})";
+	data = moduleWrapper.replace("$$modSrc", data);
+	return data;
+}
+

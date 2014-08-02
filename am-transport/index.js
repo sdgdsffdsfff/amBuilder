@@ -127,11 +127,11 @@ function wrapperByCode(data, options) {
 		if (!options.standalone) {
 			var modNameStr = data.match(/^\s*?module\.exports\s*?=\s*(\w+);?$/igm);
 			modNameStr = modNameStr[0].split("=")[1].replace(/(^\s*)|(\s*$)/g, "").replace(";", "");
-			moduleWrapper = "var " + options.family + "_" + modNameStr + " = (function(){\r\n$$modSrc\r\n})();";
-			data = data.replace(/module\.exports\s*?=/ig, "return ");
+			moduleWrapper = "var " + options.family + "_" + modNameStr + ";(function(){\r\n$$modSrc\r\n})();";
+			data = data.replace(/module\.exports\s*?/ig, options.family + "_" + modNameStr);
 		} else {
-			moduleWrapper = "var " + options.family + " = (function(){\r\n$$modSrc\r\n})();";
-			data = data.replace("module.exports", "window." + options.family);
+			moduleWrapper = "var " + options.family + ";(function(){\r\n$$modSrc\r\n})();";
+			data = data.replace(/module\.exports\s*?/ig, options.family);
 		}
 	} else {//如果没有exports，则作为匿名函数处理
 		moduleWrapper = "(function(){\r\n$$modSrc\r\n})();";
@@ -148,7 +148,7 @@ function wrapperByCode(data, options) {
  * @returns {string}
  */
 function wrapperByCMD(data, options) {
-	var moduleWrapper = "define(function(require, exports, module) {$$modSrc})";
+	var moduleWrapper = "define(function(require, exports, module) {\r\n$$modSrc\r\n})";
 	data = moduleWrapper.replace("$$modSrc", data);
 	return data;
 }
@@ -160,7 +160,7 @@ function wrapperByCMD(data, options) {
  * @returns {string}
  */
 function wrapperByAMD(data, options) {
-	var moduleWrapper = "define(function() {$$modSrc})";
+	var moduleWrapper = "define(function() {\r\n$$modSrc\r\n})";
 	data = moduleWrapper.replace("$$modSrc", data);
 	return data;
 }

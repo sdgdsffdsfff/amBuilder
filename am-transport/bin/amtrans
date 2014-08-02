@@ -20,9 +20,10 @@ commands
   .usage('[options] source-file')
   .option('-d, --debug ', 'open debug mode')
   .option('-f, --family [family-name]', 'family name AJ AW AB, AMUI,which one? AJ default')
+  .option('-l, --loader [module-loader]', 'module loader windows default')
   .option('-o, --output [output-file]', 'Use [output-file] as output instead of STDOUT')
+  .option('-s, --standalone', 'family only,no module name')
   .option('-u, --uglify', 'use uglifyjs minify js')
-  .option('-w, --loader', 'module loader windows default')
 
 commands.on('--help', function() {
   util.puts('  Examples:\n');
@@ -62,6 +63,8 @@ if (commands.uglify)
     cleanOptions.uglify = options.uglify = !!commands.uglify
 if (commands.debug)
     cleanOptions.debug = options.debug = !!commands.debug
+if (commands.standalone)
+    cleanOptions.standalone = options.standalone = !!commands.standalone
 
 // ... and do the magic!
 if (commands.args.length > 0) {

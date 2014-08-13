@@ -1,5 +1,5 @@
 {
-	"name": "gulp-am-dest",
+	"name": "gulp-amw-dest",
 	"description": "am-dest gulp plugin",
 	"version": "0.1.0",
 	"homepage": "",
@@ -15,7 +15,11 @@
 		"bufferstreams": "0.0.1",
 		"gulp-util": "~2.2.13",
 		"memory-cache": "0.0.5",
-		"vinyl-fs": "*"
+		"lodash": "*",
+		"through2": "*",
+		"mkdirp": "*",
+		"graceful-fs": "*",
+		"strip-bom": "*"
 	},
 	"devDependencies": {
 		"chai": "~1.9.0",

@@ -29,7 +29,7 @@ function dest(outFolder, opt) {
 	var cwd = path.resolve(options.cwd);
 	var defaultMode = (options.mode || processMode);
 
-	function saveFile (file, enc, cb) {
+	function saveFile(file, enc, cb) {
 		var basePath;
 		if (typeof outFolder === 'string') {
 			basePath = path.resolve(cwd, outFolder);
@@ -37,7 +37,24 @@ function dest(outFolder, opt) {
 		if (typeof outFolder === 'function') {
 			basePath = path.resolve(cwd, outFolder(file));
 		}
-		var writePath = path.resolve(basePath, file.relative);
+
+		var relative = file.relative;
+
+		//如果存在version,则在file relative里加上版本号
+		if (options && options.version && file.relative.indexOf("/") > 0) {
+			var widgetName = relative.substr(relative.indexOf("/") + 1, relative.length);
+			if (options.version[widgetName.split(".")[0]]) {
+				var sections = relative.split("/");
+				//在文件名前加上版本号
+				sections[sections.length - 1] = options.version[widgetName.split(".")[0]];
+				sections[sections.length] = widgetName;
+				relative = sections.join("/");
+			}
+		}
+//		console.log(file.relative);
+
+		var writePath = path.resolve(basePath, relative);
+
 		var writeFolder = path.dirname(writePath);
 
 		// wire up new properties
@@ -48,7 +65,7 @@ function dest(outFolder, opt) {
 		file.path = writePath;
 
 		// mkdirp the folder the file is going in
-		mkdirp(writeFolder, defaultMode, function(err){
+		mkdirp(writeFolder, defaultMode, function (err) {
 			if (err) {
 				cb(err);
 			} else {

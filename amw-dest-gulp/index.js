@@ -1,5 +1,5 @@
 var es = require('event-stream'),
-	dest = require('./lib/am-fs'),
+	dest = require('./lib/amw-fs'),
 	fs = require('fs'),
 	path = require('path');
 
@@ -10,7 +10,7 @@ function amDest(path) {
 	//将文件复制到新的文件夹
 	var pakageData = JSON.parse(fs.readFileSync('package.json'));
 
-	var stream = dest(path);
+	var stream = dest(path, {version: pakageData.gallery});
 
 	return stream;
 }

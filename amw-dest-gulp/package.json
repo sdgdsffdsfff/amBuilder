@@ -1,0 +1,51 @@
+{
+	"name": "gulp-am-dest",
+	"description": "am-dest gulp plugin",
+	"version": "0.1.0",
+	"homepage": "",
+	"repository": "",
+	"author": "semious",
+	"main": "./index.js",
+	"keywords": [
+		"gulpplugin"
+	],
+	"dependencies": {
+		"gulp": "*",
+		"event-stream": "~3.1.0",
+		"bufferstreams": "0.0.1",
+		"gulp-util": "~2.2.13",
+		"memory-cache": "0.0.5",
+		"vinyl-fs": "*"
+	},
+	"devDependencies": {
+		"chai": "~1.9.0",
+		"gulp": "~3.5.0",
+		"proxyquire": "^0.6.0"
+	},
+	"contributors": [
+		{
+			"name": "semious",
+			"email": "semious@gmail.com"
+		}
+	],
+	"scripts": {
+
+	},
+	"engines": {
+		"node": ">= 0.4.0"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": ""
+		}
+	],
+	"gallery": {
+		"button": "1.0.1",
+		"dialog": "1.0.1",
+		"inputFormatter": "1.0.1",
+		"lazyload": "1.0.1",
+		"loading": "1.0.1",
+		"toast": "1.0.1"
+	}
+}

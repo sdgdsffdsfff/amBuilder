@@ -103,6 +103,7 @@ function wrapperByWindows(data, options) {
 	if (data.indexOf("module.exports") >= 0) {
 		if (!options.standalone) {
 			var modNameStr = data.match(/^module.exports\s*=\s*(\w+);?$/igm);
+
 			modNameStr = modNameStr[0].split("=")[1].replace(/(^\s*)|(\s*$)/g, "").replace(";", "");
 			data = data.replace("module.exports", "window." + options.family + "." + modNameStr);
 		} else {

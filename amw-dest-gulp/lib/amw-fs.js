@@ -40,16 +40,15 @@ function dest(outFolder, opt) {
 
 		var relative = file.relative;
 
-		//如果存在version,则在file relative里加上版本号
+		//如果存在version,则在file relative里加上版本号,没有版本号，默认为 1.0.0
 		if (options && options.version && file.relative.indexOf("/") > 0) {
 			var widgetName = relative.substr(relative.indexOf("/") + 1, relative.length);
-			if (options.version[widgetName.split(".")[0]]) {
-				var sections = relative.split("/");
-				//在文件名前加上版本号
-				sections[sections.length - 1] = options.version[widgetName.split(".")[0]];
-				sections[sections.length] = widgetName;
-				relative = sections.join("/");
-			}
+			var sections = relative.split("/");
+			//在文件名前加上版本号
+			sections[sections.length - 1] = options.version[widgetName.split(".")[0]] ? options.version[widgetName.split(".")[0]] : "1.0.0";
+			sections[sections.length] = widgetName;
+			relative = sections.join("/");
+
 		}
 //		console.log(file.relative);
 

@@ -3,7 +3,7 @@ var gulp = require('gulp'),
 
 gulp.task('am-dest', function () {
 	gulp.src('./test/data/**/*.js')
-		.pipe(amwDest('./test/dist/'))
+		.pipe(amwDest('./test/dist/','cmd'));
 });
 
 // The default task (called when you run `gulp` from cli)

@@ -30,6 +30,30 @@ function dest(outFolder, opt) {
 	var defaultMode = (options.mode || processMode);
 
 	function saveFile(file, enc, cb) {
+		function getRelativePath(path) {
+			//如果存在version,则在file relative里加上版本号,没有版本号，默认为 1.0.0
+			if (options && options.version && path.indexOf("/") > 0) {
+				var widgetName = path.substr(path.indexOf("/") + 1, path.length);
+				var sections = path.split("/");
+				//在文件名前加上版本号
+				sections[sections.length - 1] = options.version[widgetName.split(".")[0]] ? options.version[widgetName.split(".")[0]] : "1.0.0";
+
+				if (options && options.loader) {
+					switch (options.loader) {
+						case "cmd":
+							sections.push("spm");
+							break;
+						default:
+					}
+				}
+
+				sections.push(widgetName);
+				path = sections.join("/");
+			}
+
+			return path;
+		}
+
 		var basePath;
 		if (typeof outFolder === 'string') {
 			basePath = path.resolve(cwd, outFolder);
@@ -38,18 +62,8 @@ function dest(outFolder, opt) {
 			basePath = path.resolve(cwd, outFolder(file));
 		}
 
-		var relative = file.relative;
+		var relative = getRelativePath(file.relative);
 
-		//如果存在version,则在file relative里加上版本号,没有版本号，默认为 1.0.0
-		if (options && options.version && file.relative.indexOf("/") > 0) {
-			var widgetName = relative.substr(relative.indexOf("/") + 1, relative.length);
-			var sections = relative.split("/");
-			//在文件名前加上版本号
-			sections[sections.length - 1] = options.version[widgetName.split(".")[0]] ? options.version[widgetName.split(".")[0]] : "1.0.0";
-			sections[sections.length] = widgetName;
-			relative = sections.join("/");
-
-		}
 //		console.log(file.relative);
 
 		var writePath = path.resolve(basePath, relative);

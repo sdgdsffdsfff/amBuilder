@@ -4,15 +4,15 @@ var es = require('event-stream'),
 	path = require('path');
 
 // Plugin function
-function amDest(path) {
+function amDest(path, loader) {
 	path = path || "./";
+	loader = loader || "windows";
 
 	//将文件复制到新的文件夹
-	var pakageData = JSON.parse(fs.readFileSync('package.json'));
+	var packageData = JSON.parse(fs.readFileSync('package.json'));
 
-	var stream = dest(path, {version: pakageData.gallery});
+	return  dest(path, {version: packageData.gallery, loader: loader});
 
-	return stream;
 }
 
 // Export the plugin main function

@@ -5,9 +5,7 @@ var es = require('event-stream'),
 function transport(options, file, buffer) {
 	var rawContents = String(buffer);
 
-	var transported = new amTrans(options).transport(rawContents);
-
-	return transported;
+	return  new amTrans(options).transport(rawContents);
 }
 
 // File level transform function

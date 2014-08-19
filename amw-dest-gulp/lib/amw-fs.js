@@ -31,24 +31,30 @@ function dest(outFolder, opt) {
 
 	function saveFile(file, enc, cb) {
 		function getRelativePath(path) {
-			//如果存在version,则在file relative里加上版本号,没有版本号，默认为 1.0.0
-			if (options && options.version && path.indexOf("/") > 0) {
-				var widgetName = path.substr(path.indexOf("/") + 1, path.length);
-				var sections = path.split("/");
-				//在文件名前加上版本号
-				sections[sections.length - 1] = options.version[widgetName.split(".")[0]] ? options.version[widgetName.split(".")[0]] : "1.0.0";
+			function getVersion() {
+				var fullPath = file.path.split("/");
+				fullPath[fullPath.length - 1] = "package.json";
+				var packageInfo = JSON.parse(fs.readFileSync(fullPath.join("/")));
+				return packageInfo.version || "1.0.0";
+			}
 
-				if (options && options.loader) {
-					switch (options.loader) {
-						case "cmd":
-							sections.push("spm");
-							break;
-						default:
-					}
+			if (path.indexOf("/") > 0) {
+				var widgetName = path.substr(path.indexOf("/") + 1, path.length);
+				path = path.substr(0, path.indexOf("/")).split("/");
+
+				var version = getVersion();
+
+				switch (options.loader) {
+					case "cmd":
+						path.unshift("spm");
+						break;
+					default:
+						//在文件名前加上版本号
+						path.push(version);
 				}
 
-				sections.push(widgetName);
-				path = sections.join("/");
+				path.push(widgetName);
+				path = path.join("/");
 			}
 
 			return path;

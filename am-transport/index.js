@@ -149,7 +149,7 @@ function wrapperByCode(data, options) {
  * @returns {string}
  */
 function wrapperByCMD(data, options) {
-	var moduleWrapper = "define(function(require, exports, module) {\r\n$$modSrc\r\n})";
+	var moduleWrapper = "define(function(require, exports, module) {\r\n$$modSrc\r\n});";
 	data = moduleWrapper.replace("$$modSrc", data);
 	return data;
 }
@@ -161,7 +161,7 @@ function wrapperByCMD(data, options) {
  * @returns {string}
  */
 function wrapperByAMD(data, options) {
-	var moduleWrapper = "define(function() {\r\n$$modSrc\r\n})";
+	var moduleWrapper = "define(function() {\r\n$$modSrc\r\n});";
 	data = moduleWrapper.replace("$$modSrc", data);
 	return data;
 }
